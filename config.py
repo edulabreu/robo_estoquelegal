@@ -17,3 +17,21 @@ def config(filename='database.ini', section='postgresql'):
 		raise Exception('Seção  {0} não encontrada no {1} arquivo'.format(section, filename))
 
 	return db
+
+
+def config_fiscal(filename='database.ini', section='fiscal000'):
+	# create a parser
+	parser = ConfigParser()
+	# read config file
+	parser.read(filename)
+
+	# get section, default to postgresql
+	db = {}
+	if parser.has_section(section):
+		params = parser.items(section)
+		for param in params:
+			db[param[0]] = param[1]
+	else:
+		raise Exception('Seção  {0} não encontrada no {1} arquivo'.format(section, filename))
+
+	return db
