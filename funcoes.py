@@ -165,7 +165,7 @@ def descompactar_arquivos(pasta):
 
 
 
-def compactar_arquivos(pasta, num_os, cnpj):
+def compactar_arquivos_sped(pasta, num_os, cnpj):
     try:
 
         dataAtual = datetime.now().strftime('%Y%m%d%H%M')

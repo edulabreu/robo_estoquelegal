@@ -2,6 +2,8 @@ import bdfunc
 import funcoes
 import os
 import cargas
+from connect import connect_fiscal
+import pandas as pd
 from pathlib import Path
 
 
@@ -26,18 +28,20 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
         for arquivos in os.listdir(par_pasta_speds):
             try:
                 arquivo_antigo = os.path.join(par_pasta_speds , arquivos)
-                arquivo_sem_txt = os.path.join(par_pasta_speds ,Path(arquivos).stem + '.txt')
-                os.rename(arquivo_antigo, arquivo_sem_txt)
+                arquivo_com_txt_novo = os.path.join(par_pasta_speds ,Path(arquivos).stem + '.txt')
+                os.rename(arquivo_antigo, arquivo_com_txt_novo)
                 
             except(Exception) as e:
                 print(f'Não foi possivel modificar extensão do arquivo {arquivos}', e)
 
-        #  GERANDO DADOS NA TABELA ORDEM_SERVICO_SPED
+        #  VERIFICANDO CADA UM DOS ARQUIVOS NA PASTA
         for arquivos in os.listdir(par_pasta_speds):
 
             if arquivos.endswith(".txt"):
                 file = os.path.join(par_pasta_speds, arquivos)
                 funcoes.pegar_primeira_linha(file)
+
+                #  GERANDO DADOS NA TABELA ORDEM_SERVICO_SPED
                 sent_insert = ("""insert into ordem_servico_sped (ordem_servico_id, cnpj, dt_inicio, dt_fim, pasta, nome_arquivo) 
                                values (%s,%s,%s,%s,%s,%s)""")
                 valores_a_inserir = (ordem_servico, funcoes.pegar_primeira_linha.cnpj, funcoes.pegar_primeira_linha.dt_inicio, funcoes.pegar_primeira_linha.dt_fim, par_pasta, arquivos)
@@ -49,12 +53,30 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
                 funcoes.gerar_speds_limpos(par_pasta, par_pasta_speds, arquivos, n)
                 print(funcoes.gerar_speds_limpos.caminho_sped_limpo)
 
+                #  CRIANDO PASTA PADRÃO PARA TEMPORARIOS DE CARGA SPED
+                pasta_temp = os.path.join(os.getcwd(), 'temp\\')
+
+                if not os.path.exists(pasta_temp):
+                    os.makedirs(pasta_temp)
+
+
+                #  LIMPANDO BANCO - EXECUTANDO LIMPA BANCO TOTAL
+                cargas.limpar_banco_total()
+                
 
                 #  GERANDO CARGA NOS ARQUIVOS SPED DENTRO DA RESPECTIVA PASTA (RAIZ / SPED / CNPJ)
-                cargas.carga_speds(funcoes.gerar_speds_limpos.caminho_sped_limpo, n)
-                print(n)
+                cargas.carga_speds(funcoes.gerar_speds_limpos.caminho_sped_limpo)
+                cargas.separa_sped_txt_em_registro()
                 cargas.sp_processa_sped_txt(n)
+                cargas.salva_bloco_sped_txt(n)
+                cargas.sp_exporta_reg_fiscal(pasta_temp)
                 cargas.sp_atualiza_registro_sped_fiscal()
+                
+                #  IMPLEMENTAR PASSO 3.09
+
+
+                #  PASSO 3.10
+                cargas.lendo_query_passo_3_10_02()
                 
                 n += 1  # Contador utilizado na geração de sped limpo
 

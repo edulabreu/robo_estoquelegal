@@ -21,7 +21,7 @@ if __name__ == '__main__':
         num_os = row[0]
         cnpj = row[1]
         verifica_periodo_sped.ler_periodo_sped_txt(pasta, ordem_servico, num_os, cnpj)
-        funcoes.compactar_arquivos(pasta, num_os, cnpj) 
+        funcoes.compactar_arquivos_sped(pasta, num_os, cnpj) 
     
     
      
