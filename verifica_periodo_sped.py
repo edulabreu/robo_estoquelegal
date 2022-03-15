@@ -36,6 +36,7 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
 
         #  VERIFICANDO CADA UM DOS ARQUIVOS NA PASTA
         for arquivos in os.listdir(par_pasta_speds):
+            
 
             if arquivos.endswith(".txt"):
                 file = os.path.join(par_pasta_speds, arquivos)
@@ -74,6 +75,17 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
                 
                 #  IMPLEMENTAR PASSO 3.09
 
+                sql = """ select distinct registro from sped_txt; """
+                registros = pd.read_sql_query(sql, connect_fiscal())
+
+                for i in registros.index:
+
+                    registro = registros.at[i, 'registro']
+                    sql =f""" select linha from sped_txt where registro = '{registro}' limit 1; """
+                    linha = pd.read_sql_query(sql, connect_fiscal())
+                    qtd_campos = linha.at[0, 'linha'].count('|')
+                    
+                    cargas.inserir_sped_campo(n, registro, qtd_campos - 1)
 
                 #  PASSO 3.10
                 cargas.lendo_query_passo_3_10_02()

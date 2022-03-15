@@ -27,33 +27,20 @@ cEspeciais = {
 'Ó': 'O',
 'Ô': 'O',
 'ô': 'O',
+'\\': '',
 ';': '',
 '<': '',
 '>': '',
-'\\': '',
 '//': '',
 '/': '',
-'-': '',
-'_': '',
-'!': '',
-'#': '',
-'$': '',
-'%': '',
 '¨': '',
 '&': '',
-'*': '',
-'(': '',
-')': '',
-'+': '',
-'=': '',
 '{': '',
 '}': '',
 '^': '',
 '~': '',
 '[': '',
 ']': '',
-'?': '',
-':': '',
 '¹': '',
 '²': '',
 '³': '',
@@ -62,12 +49,16 @@ cEspeciais = {
 '¬': '',
 'ª': '',
 'º': '',
-'°': ''}
+'°': '',
+}
 
 
 
 def gerar_nota_txt(caminho):
-    arquivos = [sub for sub in Path('caminho').glob("**/*.csv")] 
+
+    caminho_completo = os.path.join(caminho, 'notas_txt')
+
+    arquivos = [sub for sub in Path(caminho_completo).glob("**/*.csv")] 
 
     for arquivo in arquivos:
         try:
@@ -149,4 +140,4 @@ def gerar_nota_txt(caminho):
             os.remove('temp.txt')
     
         except(Exception) as e:
-            print('Exception', e)
+            print('Exception - Erro na função gerar_nota_txt', e)

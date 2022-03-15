@@ -1,5 +1,8 @@
 import bdfunc
+import os
 
+
+#  FUNÇÕES PARA DAR CARGA NOS ARQUIVOS SPEDS
 
 def carga_speds(caminho_completo):
     try:
@@ -109,7 +112,6 @@ def lendo_query_passo_3_10_02():
 
 
 
-
 def sp_sql_copy(comando_sql, arquivo_tmp_txt, nome_tabela):
     try:
         sent_sql_funcao = (""" SELECT sp_sql_copy(%s,%s,%s); """)
@@ -117,3 +119,71 @@ def sp_sql_copy(comando_sql, arquivo_tmp_txt, nome_tabela):
         bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, valores)
     except(Exception) as e:
         print('Não está executando a função sp_processa_sped_txt', e)
+
+
+
+
+def inserir_sped_campo(contador, registro, qtd_campo):
+    try:
+        sent_sql_funcao = (""" insert into sped_campo (reg_0000_id, registro, qtd_campo) values (%s,%s,%s); """)
+        valores = (contador, registro, qtd_campo)
+        bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, valores)
+    except(Exception) as e:
+        print('Não está executando a função inserir_sped_campo', e)
+
+
+
+
+#  FUNCOES PARA CARGA NOS ARQUIVOS NOTAS_TXT 
+
+
+
+
+def importa_nota_txt(caminho):
+    try:
+        sent_sql_funcao = (""" SELECT importa_nota_txt(%s); """)
+        valores = (os.path.join(caminho, 'notas_txt'))
+        bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, valores)
+    except(Exception) as e:
+        print('Não está executando a função importa_nota_txt', e)
+
+
+
+
+def elimina_duplicidade_nota_txt():
+    try:
+        sent_sql_funcao = (""" SELECT elimina_duplicidade_nota_txt(); """)
+        bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+    except(Exception) as e:
+        print('Não está executando a função elimina_duplicidade_nota_txt', e)
+
+
+
+
+def elimina_duplicidade_dos_arquivos_reg_c100():
+    try:
+        sent_sql_funcao = (""" SELECT proc_elimina_duplicidade_dos_arquivos_reg_c100(); """)
+        bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+    except(Exception) as e:
+        print('Não está executando a função elimina_duplicidade_dos_arquivos_reg_c100', e)
+
+
+
+
+def atualiza_reg_c100_e_0200_c170_via_nota_txt():
+    try:
+        sent_sql_funcao = (""" SELECT atualiza_reg_c100_e_0200_c170_via_nota_txt(); """)
+        bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+    except(Exception) as e:
+        print('Não está executando a função atualiza_reg_c100_e_0200_c170_via_nota_txt', e)
+
+
+
+
+def processa_c100_sem_c170():
+    try:
+        sent_sql_funcao = (""" SELECT processa_c100_sem_c170(%s); """)
+        valores = (True)
+        bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, (valores,))
+    except(Exception) as e:
+        print('Não está executando a função processa_c100_sem_c170', e)
