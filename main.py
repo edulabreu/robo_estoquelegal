@@ -24,5 +24,3 @@ if __name__ == '__main__':
         funcoes.compactar_arquivos_sped(pasta, num_os, cnpj) 
     
     
-     
-    

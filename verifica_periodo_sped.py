@@ -35,8 +35,7 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
                 print(f'Não foi possivel modificar extensão do arquivo {arquivos}', e)
 
         #  VERIFICANDO CADA UM DOS ARQUIVOS NA PASTA
-        for arquivos in os.listdir(par_pasta_speds):
-            
+        for arquivos in os.listdir(par_pasta_speds):           
 
             if arquivos.endswith(".txt"):
                 file = os.path.join(par_pasta_speds, arquivos)
@@ -62,33 +61,36 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
 
 
                 #  LIMPANDO BANCO - EXECUTANDO LIMPA BANCO TOTAL
-                cargas.limpar_banco_total()
+                cargas.limpa_banco_total()
                 
 
                 #  GERANDO CARGA NOS ARQUIVOS SPED DENTRO DA RESPECTIVA PASTA (RAIZ / SPED / CNPJ)
                 cargas.carga_speds(funcoes.gerar_speds_limpos.caminho_sped_limpo)
+                cargas.log_erro()
+
                 cargas.separa_sped_txt_em_registro()
+                cargas.log_erro()
+
                 cargas.sp_processa_sped_txt(n)
+                cargas.log_erro()
+
                 cargas.salva_bloco_sped_txt(n)
+                cargas.log_erro()
+
                 cargas.sp_exporta_reg_fiscal(pasta_temp)
+                cargas.log_erro()
+
                 cargas.sp_atualiza_registro_sped_fiscal()
+                cargas.log_erro()
                 
                 #  IMPLEMENTAR PASSO 3.09
 
-                sql = """ select distinct registro from sped_txt; """
-                registros = pd.read_sql_query(sql, connect_fiscal())
-
-                for i in registros.index:
-
-                    registro = registros.at[i, 'registro']
-                    sql =f""" select linha from sped_txt where registro = '{registro}' limit 1; """
-                    linha = pd.read_sql_query(sql, connect_fiscal())
-                    qtd_campos = linha.at[0, 'linha'].count('|')
-                    
-                    cargas.inserir_sped_campo(n, registro, qtd_campos - 1)
+                cargas.procedimento_sped_campo(n)
+                cargas.log_erro()
 
                 #  PASSO 3.10
-                cargas.lendo_query_passo_3_10_02()
+                cargas.sys_copy_from_tabela_tmp_where_qtd_campo_igual_0()
+                cargas.log_erro()
                 
                 n += 1  # Contador utilizado na geração de sped limpo
 

@@ -1,8 +1,30 @@
 import bdfunc
 import os
+import pandas as pd
+from connect import connect_fiscal
 
 
 #  FUNÇÕES PARA DAR CARGA NOS ARQUIVOS SPEDS
+
+
+
+
+def log_erro():
+    try:
+        sent_sql_funcao = ("""
+                            select * from log_erro;
+                            
+                         """)
+        verifica_erro = bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+        if verifica_erro != 0:
+            print(f'ERRO VERIFICADO NA TABELA LOG_ERRO - {verifica_erro}')
+            exit(1)
+    except(Exception) as e:
+        print('Não está executando a função separa_sped_txt_em_registro', e)
+
+
+
+
 
 def carga_speds(caminho_completo):
     try:
@@ -88,7 +110,7 @@ def sp_atualiza_registro_sped_fiscal():
 
 
 
-def limpar_banco_total():
+def limpa_banco_total():
     try:
         sent_sql_funcao = (""" Select limpa_banco_total(); """)
         bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
@@ -99,14 +121,14 @@ def limpar_banco_total():
 
 
 
-def lendo_query_passo_3_10_02():
+def sys_copy_from_tabela_tmp_where_qtd_campo_igual_0():
     try:
         sent_sql_funcao = (""" SELECT sp_sql_copy(a.comando_sql,'C:\\Users\\eduar\\Desktop\\programa_aureliano\\temp\\'||a.arquivo_tmp_txt, a.nome_tabela) FROM sys_copy_from_tabela_tmp a 
                           join (select distinct registro from sped_campo) as tb(registro) on a.registro=tb.registro where qtd_campo = 0 ;""")
 
         bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
     except(Exception) as e:
-        print('Não está executando a função lendo_query_passo_3_10_02', e)
+        print('Não está executando a função sys_copy_from_tabela_tmp_where_qtd_campo_igual_0', e)
 
 
 
@@ -130,6 +152,25 @@ def inserir_sped_campo(contador, registro, qtd_campo):
         bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, valores)
     except(Exception) as e:
         print('Não está executando a função inserir_sped_campo', e)
+
+
+
+
+def procedimento_sped_campo(n):
+    try:
+        sql = """ select distinct registro from sped_txt; """
+        registros = pd.read_sql_query(sql, connect_fiscal())
+
+        for i in registros.index:
+
+            registro = registros.at[i, 'registro']
+            sql =f""" select linha from sped_txt where registro = '{registro}' limit 1; """
+            linha = pd.read_sql_query(sql, connect_fiscal())
+            qtd_campos = linha.at[0, 'linha'].count('|')
+                    
+            inserir_sped_campo(n, registro, qtd_campos - 1)
+    except(Exception) as e:
+        print('Não está executando a função procedimento_sped_campo', e)
 
 
 
