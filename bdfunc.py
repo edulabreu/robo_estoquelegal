@@ -52,13 +52,28 @@ def exec_funcao_postgres(sent_sql, valores):
         return cursor.rowcount
 
     except (Exception, psycopg2.Error) as error:
-        print('Não esta executando a função do postgres', error)
+        print('Não esta executando a função do postgres em estoque legal', error)
 
 
 
 
 
 #  FUNÇÕES DO DATABASE FISCAL000
+
+
+
+
+def select_cursor_fiscal(sent_sql):
+    try:
+        conn = connect_fiscal()
+        cursor = conn.cursor()
+        cursor.execute(sent_sql)
+        return cursor.fetchall()
+
+    except (Exception, psycopg2.Error) as error:
+        print('Não está conseguindo fazer pesquisa na tabela', error)
+
+
 
 
 def exec_funcao_postgres_fiscal(sent_sql, valores):

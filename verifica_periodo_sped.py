@@ -2,8 +2,6 @@ import bdfunc
 import funcoes
 import os
 import cargas
-from connect import connect_fiscal
-import pandas as pd
 from pathlib import Path
 
 
@@ -13,8 +11,12 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
     try:
         n = 1  # Contador para utilizar na geração de sped limpo
 
-        #  DELETANDO A TABELA ORDEM_SERVICO_SPED NO INICIO DA LEITURA
+        #  DELETANDO A TABELA ORDEM_SERVICO_SPED  E  ORDEM_SERVICO_SPED_ERRO NO INICIO DA LEITURA
         sent_delete = (""" delete from ordem_servico_sped where ordem_servico_id = %s and cnpj = %s""")
+        a_deletar = (num_os, cnpj)
+        bdfunc.delete_banco(sent_delete, a_deletar) 
+
+        sent_delete = (""" delete from ordem_servico_sped_erro where ordem_servico_id = %s and cnpj = %s""")
         a_deletar = (num_os, cnpj)
         bdfunc.delete_banco(sent_delete, a_deletar) 
 
@@ -59,42 +61,9 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
                 if not os.path.exists(pasta_temp):
                     os.makedirs(pasta_temp)
 
+                n += 1
 
-                #  LIMPANDO BANCO - EXECUTANDO LIMPA BANCO TOTAL
-                cargas.limpa_banco_total()
-                
-
-                #  GERANDO CARGA NOS ARQUIVOS SPED DENTRO DA RESPECTIVA PASTA (RAIZ / SPED / CNPJ)
-                cargas.carga_speds(funcoes.gerar_speds_limpos.caminho_sped_limpo)
-                cargas.log_erro()
-
-                cargas.separa_sped_txt_em_registro()
-                cargas.log_erro()
-
-                cargas.sp_processa_sped_txt(n)
-                cargas.log_erro()
-
-                cargas.salva_bloco_sped_txt(n)
-                cargas.log_erro()
-
-                cargas.sp_exporta_reg_fiscal(pasta_temp)
-                cargas.log_erro()
-
-                cargas.sp_atualiza_registro_sped_fiscal()
-                cargas.log_erro()
-                
-                #  IMPLEMENTAR PASSO 3.09
-
-                cargas.procedimento_sped_campo(n)
-                cargas.log_erro()
-
-                #  PASSO 3.10
-                cargas.sys_copy_from_tabela_tmp_where_qtd_campo_igual_0()
-                cargas.log_erro()
-                
-                n += 1  # Contador utilizado na geração de sped limpo
-
-        #  EXECUTANDO A FUNÇÃO POSTGRES PARA VERIFICAR SPEDS FALTANTES
+        #  VERIFICAR SPEDS FALTANTES
         funcoes.add_erro_periodo_faltantes(num_os, cnpj)
         
 
