@@ -1,7 +1,6 @@
 import bdfunc
 import funcoes
 import os
-import cargas
 from pathlib import Path
 
 

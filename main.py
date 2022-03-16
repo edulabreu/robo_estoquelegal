@@ -1,10 +1,8 @@
 #!/usr/bin/python
 
-from re import I
 from bdfunc import select_cursor
 import os
 import verifica_periodo_sped
-from pathlib import Path
 import notas_txt
 import funcoes
 import cargas
