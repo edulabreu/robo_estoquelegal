@@ -57,6 +57,21 @@ def exec_funcao_postgres(sent_sql, valores):
 
 
 
+def exec_funcao_postgres_sem_valores(sent_sql):
+    try:
+        
+        conn = connect()
+        cursor = conn.cursor()
+        cursor.execute(sent_sql)
+        conn.commit()
+        return cursor.rowcount
+
+    except (Exception, psycopg2.Error) as error:
+        print('Não esta executando a função do postgres sem valores em estoque legal', error)
+
+
+
+
 
 #  FUNÇÕES DO DATABASE FISCAL000
 

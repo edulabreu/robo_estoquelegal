@@ -1,6 +1,9 @@
+from datetime import date
 from pathlib import Path
 import os
 import re
+
+from numpy import integer
 
 
 
@@ -56,13 +59,13 @@ cEspeciais = {
 
 def gerar_nota_txt(caminho):
 
-    caminho_completo = os.path.join(caminho, 'notas_txt')
+    caminho_completo = os.path.join(caminho, 'planilha_cliente_xml')
 
     arquivos = [sub for sub in Path(caminho_completo).glob("**/*.csv")] 
-
+    n = 1
     for arquivo in arquivos:
         try:
-            print(arquivo)
+            print('LIMPANDO ARQUIVO NOTAS_TXT ', arquivo)
 
             #  POSSO CHAMAR A FUNÇÃO PEGAR PRIMEIRA LINHA AQUI  -> VERIFICAR DEPOIS
             arquivo_notas_txt = open(arquivo, 'r', encoding='latin1')
@@ -72,11 +75,14 @@ def gerar_nota_txt(caminho):
             arquivo_notas_txt.readline()   # PULAR A PRIMEIRA LINHA - CABEÇALHO     
         
             novoTexto = open('temp.txt', 'w', encoding='utf-8')
-        
-            for itens in (range(len(numero_de_linhas) - 1)):
+            erros = open(os.path.join(caminho, 'erros_limpeza_xml_'+str(n).zfill(2)+'.err'), 'w', encoding='utf-8')
 
+            for itens in (range(len(numero_de_linhas) - 1)):
+                
                 linha = arquivo_notas_txt.readline()
+                
                 tupla_valores = linha.split(';')
+                
             
 
                 chv_nfe = str.strip(tupla_valores[1])
@@ -91,10 +97,10 @@ def gerar_nota_txt(caminho):
                 num_item = str.strip(tupla_valores[11])
                 cod_item = str.strip(tupla_valores[12])
                 descr_item = str.strip(tupla_valores[13]) 
-                qtd = str.strip(tupla_valores[14])  
-                unid = str.strip(tupla_valores[15])  
-                vl_item = str.strip(tupla_valores[16])  
-                vl_desc = str.strip(tupla_valores[17])
+                qtd = str.strip(tupla_valores[14]).replace(',' , '.')  
+                unid = str.strip(tupla_valores[15]).replace(',' , '.')   
+                vl_item = str.strip(tupla_valores[16]).replace(',' , '.')    
+                vl_desc = str.strip(tupla_valores[17]).replace(',' , '.')  
                 # qtd = str.strip(tupla_valores[14]) + '.' + str.strip(tupla_valores[15])
                 # unid = str.strip(tupla_valores[16])
                 # vl_item = str.strip(tupla_valores[17]) + '.' + str.strip(tupla_valores[18])
@@ -103,22 +109,34 @@ def gerar_nota_txt(caminho):
                 cst_icms = str.strip(tupla_valores[19])
                 cfop = str.strip(tupla_valores[20])
                 cod_cta= str.strip(tupla_valores[24])
+                cod_ncn = str.strip(tupla_valores[22])
+                cest = str.strip(tupla_valores[21])
 
-                dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta]
+
+                if qtd.replace('.','',1).isdigit() == False or len(unid) > 6 or vl_item.replace('.','',1).isdigit() == False or vl_desc.replace('.','',1).isdigit() == False or len(cst_icms) > 4 or len(cfop) > 4:
+                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncn, cest]
+                    erros.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '|' + dados[17]  + '|' + dados[18]  +'|\n')
+                
+
+                else:
+                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncn, cest]
+                    novoTexto.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '|' + dados[17]  + '|' + dados[18]  +'|\n')
+                
             
 
                 # for i in range(len(dados)):
                 #     if dados[i] == 'NULL':
                 #         dados[i] = ''
     
-        
-                novoTexto.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '||\n')
-
+                
+                
         
             novoTexto.seek(0)
             novoTexto.close()
+            erros.seek(0)
+            erros.close()
 
-            caminhoCompleto = os.path.join(arquivo.parent, 'limpos')
+            caminhoCompleto = os.path.join(caminho, 'notas_txt')
             if not os.path.exists(caminhoCompleto): 
                 os.makedirs(caminhoCompleto)
     
@@ -138,6 +156,6 @@ def gerar_nota_txt(caminho):
 
             output.close()
             os.remove('temp.txt')
-    
+            n += 1
         except(Exception) as e:
             print('Exception - Erro na função gerar_nota_txt', e)

@@ -5,16 +5,84 @@ import time
 from datetime import datetime
 import zipfile
 from pathlib import Path
-from datetime import datetime
 
 
-def add_erro_periodo_faltantes(num_os, cnpj):
+
+
+def add_inserir_qnt_sped_lido(num_os, cnpj):
     try:
-        sent_sql_funcao = ("""SELECT os_add_erro_periodo_faltante(%s, %s) """)
-        valores = (num_os, cnpj)
-        bdfunc.exec_funcao_postgres(sent_sql_funcao, valores)
+        sent_sql = (""" update ordem_servico_filial set qtd_sped_lido =( select count(*) from ordem_servico_sped where ordem_servico_sped.ordem_servico_id=%s
+                    and ordem_servico_sped.cnpj=%s) where ordem_servico_filial.ordem_servico_id = %s and ordem_servico_filial.cnpj=%s """)
+        valores =(num_os, cnpj, num_os, cnpj)
+        bdfunc.exec_funcao_postgres(sent_sql, valores)
+    except(Exception) as e:
+        print('Não está executando a função add_inserir_qnt_sped_lido', e)
+
+
+
+
+
+def add_inserir_qnt_sped_erro_lido(num_os, cnpj):
+    try:
+        sent_sql = (""" update ordem_servico_filial set qtd_sped_erro =( select count(*) from ordem_servico_sped_erro where ordem_servico_sped_erro.ordem_servico_id=%s
+                    and ordem_servico_sped_erro.cnpj=%s) where ordem_servico_filial.ordem_servico_id = %s and ordem_servico_filial.cnpj=%s """)
+        valores =(num_os, cnpj, num_os, cnpj)
+        bdfunc.exec_funcao_postgres(sent_sql, valores)
+    except(Exception) as e:
+        print('Não está executando a função add_inserir_qnt_sped_erro_lido', e)
+
+
+
+
+
+def verificar_flg_sped_valido(num_os, cnpj):
+    try:
+        sent_sql = (""" UPDATE ordem_servico_filial set flg_sped_valido  =  CASE WHEN qtd_sped_lido = qtd_sped and qtd_sped_erro = 0 THEN 'S' ELSE 'N' END  
+    WHERE ordem_servico_filial.ordem_servico_id=%s and ordem_servico_filial.cnpj=%s """)
+        valores =(num_os, cnpj)
+        bdfunc.exec_funcao_postgres(sent_sql, valores)
     except(Exception) as e:
         print('Não está executando a função add_erro_periodo_faltantes', e)
+
+ 
+
+
+
+def add_erro_periodo_faltantes(num_os):
+    try:
+        sent_sql_funcao = ("""select os_add_erro_periodo_faltante(ordem_servico_id, cnpj) from ordem_servico_filial where status_ordem_servico_id in (2,3) and ordem_servico_id= %s""")
+        valores = (num_os)
+        bdfunc.exec_funcao_postgres(sent_sql_funcao, (valores,))
+    except(Exception) as e:
+        print('Não está executando a função add_erro_periodo_faltantes', e)
+
+
+
+
+def add_erro_periodo_duplicado(num_os):
+    try:
+        sent_sql_funcao = ("""delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 2;
+                            insert into ordem_servico_sped_erro (ordem_servico_id, cnpj, dt_inicio, dt_fim, status_erro_sped_id)
+                            select osf.ordem_servico_id, osf.cnpj, oss.dt_inicio, oss.dt_fim, 2 from ordem_servico os join ordem_servico_filial osf on os.id=osf.ordem_servico_id join ordem_servico_sped oss on os.id=osf.ordem_servico_id and
+                            osf.cnpj=oss.cnpj where osf.status_ordem_servico_id in (2,3) and os.id= 1 group by osf.ordem_servico_id, osf.cnpj, oss.dt_inicio, oss.dt_fim having count(*)>1 order by osf.cnpj, oss.dt_inicio;""")
+        valores = (num_os)
+        bdfunc.exec_funcao_postgres(sent_sql_funcao, (valores,) )
+    except(Exception) as e:
+        print('Não está executando a função add_erro_periodo_duplicado', e)
+
+
+
+
+def add_erro_cnpj_faltante(num_os):
+    try:
+        sent_sql_funcao= ("""delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 3;
+                            insert into ordem_servico_sped_erro (ordem_servico_id, cnpj, status_erro_sped_id)
+                            select osf.ordem_servico_id, count(distinct osf.cnpj), 3 from ordem_servico os join ordem_servico_filial osf on os.id=osf.ordem_servico_id join ordem_servico_sped oss on os.id=osf.ordem_servico_id and
+                            osf.cnpj=oss.cnpj where osf.status_ordem_servico_id in (2,3) and os.id= 1 group by osf.ordem_servico_id, osf.cnpj having  count(distinct osf.cnpj)>1 order by osf.cnpj;""")
+        valores = (num_os)
+        bdfunc.exec_funcao_postgres(sent_sql_funcao, (valores,) )
+    except(Exception) as e:
+        print('Não está executando a função add_erro_cnpj_faltante', e)
 
 
 
@@ -35,6 +103,33 @@ def func_limpar(dict, text):
 #     split_primeira_linha.cnpj = tupla_primeira_linha[7]
 #     split_primeira_linha.dt_inicio = tupla_primeira_linha[4]
 #     split_primeira_linha.dt_fim = tupla_primeira_linha[5]
+
+
+
+
+def pegar_txt(extensao, par_pasta, par_pasta_speds, arquivos, ordem_servico):
+    if arquivos.endswith(extensao):
+        file = os.path.join(par_pasta_speds, arquivos)
+        pegar_primeira_linha(file)
+
+        #  GERANDO DADOS NA TABELA ORDEM_SERVICO_SPED
+        sent_insert = ("""insert into ordem_servico_sped (ordem_servico_id, cnpj, dt_inicio, dt_fim, pasta, nome_arquivo) 
+                       values (%s,%s,%s,%s,%s,%s)""")
+        valores_a_inserir = (ordem_servico, pegar_primeira_linha.cnpj, pegar_primeira_linha.dt_inicio, pegar_primeira_linha.dt_fim, par_pasta, arquivos)
+
+        #  INSERINO VALORES DA PRIMEIRA LINHA NA TABELA ORDEM_SERVICO_SPED
+        bdfunc.insert_banco(sent_insert, valores_a_inserir)
+
+        #  GERANDO OS ARQUIVOS SPEDS LIMPOS NA PASTA RAIZ/SPED/CNPJ
+                
+        # funcoes.gerar_speds_limpos(par_pasta, par_pasta_speds, arquivos, n)
+        # print('GERADO ARQUIVO SPED LIMPO NO CAMINHO: ',funcoes.gerar_speds_limpos.caminho_sped_limpo)
+
+        #  CRIANDO PASTA PADRÃO PARA TEMPORARIOS DE CARGA SPED
+        # pasta_temp = os.path.join(os.getcwd(), 'temp') # 
+
+        # if not os.path.exists(pasta_temp):
+        #     os.makedirs(pasta_temp)
 
 
 
@@ -64,6 +159,9 @@ def pegar_primeira_linha(arquivo):
     
     except(Exception) as e:
         print('Erro ao entrar na função pegar_primeira_linha.  erro ->', e)
+        erro = open('ARQUIVOS_COM_ERRO.txt', 'a', encoding='utf-8')
+        erro.write(f'ERRO AO LER A PRIMEIRA LINHA DO ARQUIVO {arquivo} \n')
+        erro.close()
 
 
 
@@ -112,16 +210,19 @@ def gerar_speds_limpos(pasta_raiz, pasta_completa, txt, n):
 'ª': '',
 'º': '',
 '°': '',
+'ÿ': '',
+'\x00': ''  
+
 }
 
         caminho_para_limpar = os.path.join(pasta_completa, txt)
         original = open(caminho_para_limpar, 'r', encoding='latin-1')
         pegar_primeira_linha(caminho_para_limpar)        
         
-        if not os.path.exists(os.path.join(pasta_raiz, 'sped', pegar_primeira_linha.cnpj)):
-            os.makedirs(os.path.join(pasta_raiz, 'sped', pegar_primeira_linha.cnpj))
+        if not os.path.exists(os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)):
+            os.makedirs(os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj))
 
-        caminho_para_criar_arquivo = os.path.join(pasta_raiz, 'sped', pegar_primeira_linha.cnpj)
+        caminho_para_criar_arquivo = os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)
 
         novoTexto = open(os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt'), 'w+', encoding='utf-8')
         original.seek(0)
@@ -169,7 +270,7 @@ def compactar_arquivos_sped(pasta, num_os, cnpj):
 
         dataAtual = datetime.now().strftime('%Y%m%d%H%M')
 
-        pastaCompleta_sped = os.path.join(pasta, 'sped', 'originais')
+        pastaCompleta_sped = os.path.join(pasta, 'speds', 'originais')
   
         #  COMPACTANDO OS ARQUIVOS SPEDS ORIGINAIS
 
