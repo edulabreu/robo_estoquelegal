@@ -2,8 +2,9 @@ import re
 import os
 import bdfunc
 import time
-from datetime import datetime
 import zipfile
+import shutil
+from datetime import datetime
 from pathlib import Path
 
 
@@ -167,7 +168,7 @@ def pegar_primeira_linha(arquivo):
 
 
 
-def gerar_speds_limpos(pasta_raiz, pasta_completa, txt, n):
+def gerar_speds_limpos(pasta_raiz, cnpj):
     try:
 
         dict = {
@@ -213,34 +214,77 @@ def gerar_speds_limpos(pasta_raiz, pasta_completa, txt, n):
 'ÿ': '',
 '\x00': ''  
 
-}
-
-        caminho_para_limpar = os.path.join(pasta_completa, txt)
-        original = open(caminho_para_limpar, 'r', encoding='latin-1')
-        pegar_primeira_linha(caminho_para_limpar)        
+}       
         
-        if not os.path.exists(os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)):
-            os.makedirs(os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj))
+        pasta_completa = os.path.join(pasta_raiz , 'speds' , 'originais')
+        n = 1
 
-        caminho_para_criar_arquivo = os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)
+        if os.path.exists(os.path.join(pasta_raiz, 'speds', cnpj)):
+            
+            shutil.rmtree(os.path.join(pasta_raiz, 'speds', cnpj)) 
 
-        novoTexto = open(os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt'), 'w+', encoding='utf-8')
-        original.seek(0)
-        texto = original.read()
-        resultado = func_limpar(dict, texto)
+        if not os.path.exists(os.path.join(pasta_raiz, 'speds', cnpj)):
 
-        textopronto, lixo, tail = resultado.partition('SBRCAAEPDR0')
-        if lixo == "" or tail == "":
-            print(f"ARQUIVO SPED DE NOME: {txt} NÃO TEM ASSINATURA ELETRONICA")
+            os.makedirs(os.path.join(pasta_raiz, 'speds', cnpj))
 
-        novoTexto.write(textopronto)
-        novoTexto.close()
-        original.close()
+        for txt in os.listdir(pasta_completa):
 
-        gerar_speds_limpos.caminho_sped_limpo = os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt')
+            if txt.endswith ('.txt'): 
+                print('LIMPANDO ARQUIVO SPED ', txt)  
+          
+                caminho_para_limpar = os.path.join(pasta_completa, txt)
+        
+                original = open(caminho_para_limpar, 'r', encoding='latin-1')
+                pegar_primeira_linha(caminho_para_limpar)
+
+                caminho_para_criar_arquivo = os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)
+
+                novoTexto = open(os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt'), 'w+', encoding='utf-8')
+                original.seek(0)
+                texto = original.read()
+                resultado = func_limpar(dict, texto)
+
+                textopronto, lixo, tail = resultado.partition('SBRCAAEPDR0')
+                if lixo == "" or tail == "":
+                    print(f"ARQUIVO SPED DE NOME: {txt} NÃO TEM ASSINATURA ELETRONICA")
+
+                novoTexto.write(textopronto)
+                novoTexto.close()
+                original.close()
+
+                gerar_speds_limpos.caminho_sped_limpo = os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt')
+
+                n += 1
+
+            if txt.endswith ('.TXT'): 
+                print('LIMPANDO ARQUIVO SPED ', txt)  
+          
+                caminho_para_limpar = os.path.join(pasta_completa, txt)
+        
+                original = open(caminho_para_limpar, 'r', encoding='latin-1')
+                pegar_primeira_linha(caminho_para_limpar)
+
+                caminho_para_criar_arquivo = os.path.join(pasta_raiz, 'speds', pegar_primeira_linha.cnpj)
+
+                novoTexto = open(os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt'), 'w+', encoding='utf-8')
+                original.seek(0)
+                texto = original.read()
+                resultado = func_limpar(dict, texto)
+
+                textopronto, lixo, tail = resultado.partition('SBRCAAEPDR0')
+                if lixo == "" or tail == "":
+                    print(f"ARQUIVO SPED DE NOME: {txt} NÃO TEM ASSINATURA ELETRONICA")
+
+                novoTexto.write(textopronto)
+                novoTexto.close()
+                original.close()
+
+                gerar_speds_limpos.caminho_sped_limpo = os.path.join(caminho_para_criar_arquivo, pegar_primeira_linha.cnpj+'_'+str(pegar_primeira_linha.dt_fim)+"_"+str(n).zfill(3)+'.txt')
+
+                n += 1
 
     except(Exception) as e:
-        print(f'Não foi possivel limpar o arquivo {txt}', e)
+        print(f'Não foi possivel executar a função gerar_speds_limpo ', e)
 
 
 

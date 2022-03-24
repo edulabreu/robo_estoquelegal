@@ -3,6 +3,7 @@ from bdfunc import select_cursor_fiscal
 import bdfunc
 import os
 import pandas as pd
+import sys
 from connect import connect_fiscal
 
 
@@ -20,9 +21,9 @@ def log_erro():
         verifica_erro = bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
         if verifica_erro != 0:
             print(f'FOI OBSERVADO UM PROBLEMA. VERIFIQUE NA TABELA LOG ERRO. QTD ERROS -> {verifica_erro}')
-            exit(1)
+            sys.exit()
     except(Exception) as e:
-        print('Não está executando a função separa_sped_txt_em_registro', e)
+        print('Não está executando a função log_erro', e)
 
 
 
@@ -216,13 +217,13 @@ def procedimento_sped_campo(n):
 def gerar_carga_todos_os_speds(pasta, cnpj):
     try:
         n = 1
-        caminho_sped_limpos = os.path.join(pasta, 'sped', cnpj)
+        caminho_sped_limpos = os.path.join(pasta, 'speds', cnpj)
 
         for arquivos in os.listdir(caminho_sped_limpos):          
 
             if arquivos.endswith(".txt"):
     
-                caminho_sped_limpos_para_carga = os.path.join(pasta, 'sped', cnpj, arquivos)
+                caminho_sped_limpos_para_carga = os.path.join(pasta, 'speds', cnpj, arquivos)
                 print('CARGA NO ARQUIVO SPED: ', caminho_sped_limpos_para_carga)
 
                 #  LIMPANDO BANCO - EXECUTANDO LIMPA BANCO TOTAL
@@ -241,7 +242,7 @@ def gerar_carga_todos_os_speds(pasta, cnpj):
                 salva_bloco_sped_txt(n)
                 log_erro()
 
-                pasta_temp = os.path.join(os.getcwd(), 'temp\\')
+                pasta_temp = os.path.join(os.getcwd(), 'temp/')
                 sp_exporta_reg_fiscal(pasta_temp)
                 log_erro()
 

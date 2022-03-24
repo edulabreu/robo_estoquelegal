@@ -53,6 +53,8 @@ cEspeciais = {
 'ª': '',
 'º': '',
 '°': '',
+'ÿ': '',
+'\x00': ''  
 }
 
 
@@ -109,18 +111,18 @@ def gerar_nota_txt(caminho):
                 cst_icms = str.strip(tupla_valores[19])
                 cfop = str.strip(tupla_valores[20])
                 cod_cta= str.strip(tupla_valores[24])
-                cod_ncn = str.strip(tupla_valores[22])
+                cod_ncm = str.strip(tupla_valores[22])
                 cest = str.strip(tupla_valores[21])
-
+                #  OBS:  LISTA INVERSA -> | 24(cod_cta) = -1 | - | 14(qtd) = -11  |   
 
                 if qtd.replace('.','',1).isdigit() == False or len(unid) > 6 or vl_item.replace('.','',1).isdigit() == False or vl_desc.replace('.','',1).isdigit() == False or len(cst_icms) > 4 or len(cfop) > 4:
-                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncn, cest]
-                    erros.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '|' + dados[17]  + '|' + dados[18]  +'|\n')
+                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncm, cest]
+                    erros.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '||' + dados[17]  + '|' + dados[18]  + '|' + '\n')
                 
 
                 else:
-                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncn, cest]
-                    novoTexto.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '|' + dados[17]  + '|' + dados[18]  +'|\n')
+                    dados = [chv_nfe, cnpj_emitente, tp_emis, cod_sit, num_doc, dt_doc, dt_e_s, num_item, cod_item, descr_item, qtd, unid, vl_item, vl_desc, cst_icms, cfop, cod_cta, cod_ncm, cest]
+                    novoTexto.write('|' + dados[0] + '|' + dados[1] + '|' + dados[2] + '|' + dados[3] + '|' + str(nr_sat) + '|' + dados[4] + '|' + dados[5] + '|' + dados[6] + '|' + dados[7] + '|' + dados[8] + '|' + dados[9] + '|' + dados[10] + '|' + dados[11] + '|' + dados[12] + '|' + dados[13] + '|' + str(ind_mov) + '|' + dados[14] + '|' + dados[15] + '|' + '|0.00|0.00|0.00|0.00|0.00|0.00|0|||0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00||0.00|0.00|0.00|0.00|0.00|' + dados[16] + '||' + dados[17]  + '|' + dados[18]  + '|' + '\n')
                 
             
 

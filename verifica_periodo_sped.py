@@ -29,15 +29,15 @@ def ler_periodo_sped_txt(par_pasta, ordem_servico, num_os, cnpj):
         funcoes.descompactar_arquivos(par_pasta_speds)
 
 
-        #  MODIFICANDO A EXTENSÃO DE TODOS OS ARQUIVOS NA PASTA
-        for arquivos in os.listdir(par_pasta_speds):
-            try:
-                arquivo_antigo = os.path.join(par_pasta_speds , arquivos)
-                arquivo_com_txt_novo = os.path.join(par_pasta_speds ,Path(arquivos).stem + '.txt')
-                os.rename(arquivo_antigo, arquivo_com_txt_novo)
+        # #  MODIFICANDO A EXTENSÃO DE TODOS OS ARQUIVOS NA PASTA
+        # for arquivos in os.listdir(par_pasta_speds):
+        #     try:
+        #         arquivo_antigo = os.path.join(par_pasta_speds , arquivos)
+        #         arquivo_com_txt_novo = os.path.join(par_pasta_speds ,Path(arquivos).stem + '.txt')
+        #         os.rename(arquivo_antigo, arquivo_com_txt_novo)
                 
-            except(Exception) as e:
-                print(f'Não foi possivel modificar extensão do arquivo {arquivos}', e)
+        #     except(Exception) as e:
+        #         print(f'Não foi possivel modificar extensão do arquivo {arquivos}', e)
         
 
         #  VERIFICANDO CADA UM DOS ARQUIVOS NA PASTA

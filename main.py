@@ -34,11 +34,13 @@ if __name__ == '__main__':
         
         #  verifica_periodo_sped.ler_periodo_sped_txt(pasta, ordem_servico, num_os, cnpj)
         
+        #  funcoes.gerar_speds_limpos(pasta, cnpj)
+
         #  cargas.gerar_carga_todos_os_speds(pasta, cnpj)
                 
-        notas_txt.gerar_nota_txt(pasta)
+        #  notas_txt.gerar_nota_txt(pasta)
         
-        # cargas.cargas_notas_txt(pasta)
+        cargas.cargas_notas_txt(pasta)
     
         # relatorio.gerar_relatorio(row[4],cnpj)
 
@@ -46,8 +48,8 @@ if __name__ == '__main__':
     
     #  VERIFICAR SPEDS FALTANTES
 
-    # funcoes.add_erro_periodo_faltantes(num_os)
-    # funcoes.add_erro_periodo_duplicado(num_os)
-    # funcoes.add_erro_cnpj_faltante(num_os)
+    #  funcoes.add_erro_periodo_faltantes(num_os)
+    #  funcoes.add_erro_periodo_duplicado(num_os)
+    #  funcoes.add_erro_cnpj_faltante(num_os)
     
     
