@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
         print('ITENS DA TABELA: ',row)
         
-        #  verifica_periodo_sped.ler_periodo_sped_txt(pasta, ordem_servico, num_os, cnpj)
+        verifica_periodo_sped.ler_periodo_sped_txt(pasta, ordem_servico, num_os, cnpj)
         
         #  funcoes.gerar_speds_limpos(pasta, cnpj)
 
@@ -40,16 +40,16 @@ if __name__ == '__main__':
                 
         #  notas_txt.gerar_nota_txt(pasta)
         
-        cargas.cargas_notas_txt(pasta)
+        #  cargas.cargas_notas_txt(pasta)
     
         # relatorio.gerar_relatorio(row[4],cnpj)
 
         # funcoes.compactar_arquivos_sped(pasta, ordem_servico, cnpj) 
     
     #  VERIFICAR SPEDS FALTANTES
-
-    #  funcoes.add_erro_periodo_faltantes(num_os)
-    #  funcoes.add_erro_periodo_duplicado(num_os)
-    #  funcoes.add_erro_cnpj_faltante(num_os)
+    funcoes.deletar_ordem_servico_sped_erro(num_os)
+    funcoes.add_erro_periodo_faltantes(num_os)
+    funcoes.add_erro_periodo_duplicado(num_os)
+    funcoes.add_erro_cnpj_faltante(num_os)
     
     

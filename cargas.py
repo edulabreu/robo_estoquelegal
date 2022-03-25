@@ -139,10 +139,11 @@ def sys_copy_from_tabela_tmp_where_qtd_campo_diferente_0(n):
 
 def sys_copy_from_tabela_tmp_where_qtd_campo_igual_0():
     try:
-        sent_sql_funcao = (""" SELECT sp_sql_copy(a.comando_sql,'C:\\Users\\eduar\\Desktop\\programa_aureliano\\temp\\'||a.arquivo_tmp_txt, a.nome_tabela) FROM sys_copy_from_tabela_tmp a
+        caminho_temp = os.path.join(os.getcwd(), 'temp',)
+        sent_sql_funcao = (""" SELECT sp_sql_copy(a.comando_sql, %s||a.arquivo_tmp_txt, a.nome_tabela) FROM sys_copy_from_tabela_tmp a
                              join (select distinct registro from sped_campo) as tb(registro) on a.registro=tb.registro where qtd_campo = 0 """)
-
-        bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+        valores=(caminho_temp)
+        bdfunc.exec_funcao_postgres_fiscal(sent_sql_funcao, (valores,))
     except(Exception) as e:
         print('Não está executando a função sys_copy_from_tabela_tmp_where_qtd_campo_igual_0', e)
 

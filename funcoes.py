@@ -10,6 +10,19 @@ from pathlib import Path
 
 
 
+def deletar_ordem_servico_sped_erro(num_os):
+    try:
+        sent_sql = ("""
+        delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 2;
+        delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 3;
+        """)
+        valores = (num_os,num_os)
+        bdfunc.exec_funcao_postgres(sent_sql, valores)
+    except(Exception) as e:
+        print('Não está executando a função deletar_ordem_servico_sped_erro', e)
+
+
+
 def add_inserir_qnt_sped_lido(num_os, cnpj):
     try:
         sent_sql = (""" update ordem_servico_filial set qtd_sped_lido =( select count(*) from ordem_servico_sped where ordem_servico_sped.ordem_servico_id=%s
@@ -62,7 +75,7 @@ def add_erro_periodo_faltantes(num_os):
 
 def add_erro_periodo_duplicado(num_os):
     try:
-        sent_sql_funcao = ("""delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 2;
+        sent_sql_funcao = ("""
                             insert into ordem_servico_sped_erro (ordem_servico_id, cnpj, dt_inicio, dt_fim, status_erro_sped_id)
                             select osf.ordem_servico_id, osf.cnpj, oss.dt_inicio, oss.dt_fim, 2 from ordem_servico os join ordem_servico_filial osf on os.id=osf.ordem_servico_id join ordem_servico_sped oss on os.id=osf.ordem_servico_id and
                             osf.cnpj=oss.cnpj where osf.status_ordem_servico_id in (2,3) and os.id= 1 group by osf.ordem_servico_id, osf.cnpj, oss.dt_inicio, oss.dt_fim having count(*)>1 order by osf.cnpj, oss.dt_inicio;""")
@@ -76,7 +89,7 @@ def add_erro_periodo_duplicado(num_os):
 
 def add_erro_cnpj_faltante(num_os):
     try:
-        sent_sql_funcao= ("""delete from ordem_servico_sped_erro where ordem_servico_id = %s and status_erro_sped_id = 3;
+        sent_sql_funcao= ("""
                             insert into ordem_servico_sped_erro (ordem_servico_id, cnpj, status_erro_sped_id)
                             select osf.ordem_servico_id, count(distinct osf.cnpj), 3 from ordem_servico os join ordem_servico_filial osf on os.id=osf.ordem_servico_id join ordem_servico_sped oss on os.id=osf.ordem_servico_id and
                             osf.cnpj=oss.cnpj where osf.status_ordem_servico_id in (2,3) and os.id= 1 group by osf.ordem_servico_id, osf.cnpj having  count(distinct osf.cnpj)>1 order by osf.cnpj;""")
