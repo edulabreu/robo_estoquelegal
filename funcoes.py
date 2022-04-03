@@ -1,11 +1,28 @@
 import re
 import os
 import bdfunc
+import sys
 import time
 import zipfile
 import shutil
 from datetime import datetime
 from pathlib import Path
+
+
+
+
+def log_erro():
+    try:
+        sent_sql_funcao = ("""
+                            select * from log_erro;
+                            
+                         """)
+        verifica_erro = bdfunc.exec_funcao_postgres_fiscal_sem_valores(sent_sql_funcao)
+        if verifica_erro != 0:
+            print(f'FOI OBSERVADO UM PROBLEMA. VERIFIQUE NA TABELA LOG ERRO. QTD ERROS -> {verifica_erro}')
+            sys.exit()
+    except(Exception) as e:
+        print('Não está executando a função log_erro em estoque_legal', e)
 
 
 
@@ -106,17 +123,6 @@ def func_limpar(dict, text):
     return regex.sub(lambda mo: dict[mo.string[mo.start():mo.end()]], text)
 
 
-
-
-# def split_primeira_linha(arquivo):
-
-#     arquivo_sped = open(arquivo, 'r', encoding='latin1')
-#     primeira_linha = arquivo_sped.readline()
-#     tupla_primeira_linha = primeira_linha.split('|')
-    
-#     split_primeira_linha.cnpj = tupla_primeira_linha[7]
-#     split_primeira_linha.dt_inicio = tupla_primeira_linha[4]
-#     split_primeira_linha.dt_fim = tupla_primeira_linha[5]
 
 
 

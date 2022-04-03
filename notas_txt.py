@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 import re
 
-from numpy import integer
 
 
 
@@ -94,7 +93,7 @@ def gerar_nota_txt(caminho):
                 nr_sat = 000000000
                 num_doc = str.strip(tupla_valores[7])
                 dt_doc_inicial = str.strip(tupla_valores[9])
-                dt_doc = dt_doc_inicial[0:-3]
+                dt_doc = dt_doc_inicial[0:-9]
                 dt_e_s = str.strip(tupla_valores[10])
                 num_item = str.strip(tupla_valores[11])
                 cod_item = str.strip(tupla_valores[12])

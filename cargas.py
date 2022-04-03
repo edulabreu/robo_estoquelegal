@@ -12,6 +12,11 @@ from connect import connect_fiscal
 
 
 
+
+
+
+
+
 def log_erro():
     try:
         sent_sql_funcao = ("""
@@ -23,7 +28,7 @@ def log_erro():
             print(f'FOI OBSERVADO UM PROBLEMA. VERIFIQUE NA TABELA LOG ERRO. QTD ERROS -> {verifica_erro}')
             sys.exit()
     except(Exception) as e:
-        print('Não está executando a função log_erro', e)
+        print('Não está executando a função log_erro em fiscal', e)
 
 
 
